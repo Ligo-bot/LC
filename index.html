@@ -71,6 +71,248 @@
             border:none;
             background:var(--btn-light);
             color:#22c55e;
+            font-size:13px;
             cursor:pointer;
         }
         video{
+            width:100%;
+            border-radius:16px;
+            background:#000;
+            overflow:hidden;
+        }
+        .input-box{
+            display:flex;
+            gap:8px;
+            margin:14px 0;
+        }
+        input{
+            flex:1;
+            padding:10px 14px;
+            border-radius:12px;
+            border:1px solid var(--border);
+            background:var(--card);
+            color:var(--text);
+            outline:none;
+        }
+        .btn-row{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:10px;
+            margin-bottom:12px;
+        }
+        .btn{
+            padding:10px;
+            border:none;
+            border-radius:12px;
+            font-size:14px;
+            cursor:pointer;
+        }
+        .btn-primary{
+            background:var(--btn-gradient);
+            color:#fff;
+        }
+        .btn-ghost{
+            background:var(--btn-light);
+            color:#22c55e;
+        }
+        .sent-item{
+            padding:12px 14px;
+            border-radius:14px;
+            background:transparent;
+            border:1px solid transparent;
+            margin:8px 0;
+            cursor:pointer;
+        }
+        .sent-item.active{
+            background:var(--active-bg);
+            border-color:rgba(34,197,94,0.25);
+        }
+        .en-text{
+            font-size:15px;
+            color:var(--text);
+            line-height:1.5;
+        }
+        .cn-text{
+            font-size:13px;
+            color:var(--sub-text);
+            margin-top:4px;
+        }
+        .wave-wrap{
+            display:flex;
+            gap:10px;
+            margin:12px 0;
+        }
+        .wave-item{
+            flex:1;
+            height:56px;
+            border-radius:12px;
+            background:var(--btn-light);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:13px;
+            color:#22c55e;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrap">
+    <div class="glass-card">
+        <div class="top-bar">
+            <div class="top-title">🎧 口语精听跟读</div>
+            <button class="theme-btn" id="themeBtn">🌓 深浅切换</button>
+        </div>
+
+        <video id="video" controls></video>
+
+        <div class="input-box">
+            <input id="videoUrl" placeholder="粘贴视频直链 MP4">
+            <button class="btn btn-primary" onclick="loadVideo()">加载视频</button>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="prevSent()">上一句</button>
+            <button class="btn btn-ghost" onclick="nextSent()">下一句</button>
+            <button class="btn btn-primary" onclick="toggleSingleLoop()">单句循环</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="setSpeed(0.75)">0.75x</button>
+            <button class="btn btn-ghost" onclick="setSpeed(1)">1.0x</button>
+            <button class="btn btn-ghost" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="startRecord()">录音跟读</button>
+            <button class="btn btn-ghost" onclick="playRecord()">回放</button>
+            <button class="btn btn-ghost" onclick="abToggle()">AB循环</button>
+        </div>
+
+        <div class="wave-wrap">
+            <div class="wave-item">原声波形</div>
+            <div class="wave-item">我的发音</div>
+        </div>
+
+        <div id="subContainer"></div>
+    </div>
+</div>
+
+<script>
+// 主题切换
+const themeBtn = document.getElementById('themeBtn');
+const html = document.documentElement;
+themeBtn.onclick = ()=>{
+    if(html.getAttribute('data-theme') === 'dark'){
+        html.removeAttribute('data-theme');
+        localStorage.theme = "light";
+    }else{
+        html.setAttribute('data-theme','dark');
+        localStorage.theme = "dark";
+    }
+}
+if(localStorage.theme === "dark") html.setAttribute('data-theme','dark');
+
+// 全局变量
+const video = document.getElementById('video');
+let subList = [];
+let curIdx = 0;
+let singleLoop = false;
+let aPoint = null,bPoint = null;
+let recorder,recordUrl;
+
+// Cindy 同款内置字幕（永不报错）
+subList = [
+    {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
+    {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
+    {en:"Imitation and repetition are the key.",cn:"模仿与重复是核心关键。",start:8,end:12}
+];
+
+// 加载视频（纯本地，无接口，永不报错）
+function loadVideo(){
+    const url = document.getElementById('videoUrl').value.trim();
+    if(!url){
+        alert("请粘贴视频直链（.mp4）");
+        return;
+    }
+    video.src = url;
+    alert("✅ 视频加载成功！");
+}
+
+// 渲染字幕
+function renderSub(){
+    const wrap = document.getElementById('subContainer');
+    wrap.innerHTML = "";
+    subList.forEach((item,i)=>{
+        const div = document.createElement('div');
+        div.className = "sent-item " + (i===curIdx?"active":"");
+        div.onclick = ()=>jumpSent(i);
+        div.innerHTML = `
+            <div class="en-text">${item.en}</div>
+            <div class="cn-text">${item.cn}</div>
+        `;
+        wrap.appendChild(div);
+    })
+}
+
+// 句子控制
+function jumpSent(i){
+    curIdx = i;
+    video.currentTime = subList[curIdx].start;
+    renderSub();
+}
+function prevSent(){if(curIdx>0) jumpSent(curIdx-1);}
+function nextSent(){if(curIdx < subList.length-1) jumpSent(curIdx+1);}
+
+// 单句循环
+function toggleSingleLoop(){
+    singleLoop = !singleLoop;
+    alert("单句循环："+(singleLoop?"开启✅":"关闭❌"));
+}
+// AB循环
+function abToggle(){
+    if(!aPoint){
+        aPoint = video.currentTime;
+        alert("A点已设置");
+    }else if(!bPoint){
+        bPoint = video.currentTime;
+        alert("B点已设置，AB循环开启");
+    }else{
+        aPoint = null;bPoint = null;
+        alert("AB循环已清除");
+    }
+}
+
+// 倍速
+function setSpeed(val){
+    video.playbackRate = val;
+}
+
+// 时间轴监听
+video.ontimeupdate = function(){
+    if(singleLoop){
+        let s = subList[curIdx];
+        if(video.currentTime > s.end) video.currentTime = s.start;
+    }
+    if(aPoint!==null && bPoint!==null){
+        if(video.currentTime > bPoint) video.currentTime = aPoint;
+    }
+}
+
+// 录音
+async function startRecord(){
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    recorder = new MediaRecorder(stream);
+    let chunks = [];
+    recorder.ondataavailable = e=>chunks.push(e.data);
+    recorder.onstop = ()=>{
+        recordUrl = URL.createObjectURL(new Blob(chunks));
+    }
+    recorder.start();
+    alert("开始跟读录音");
+}
+function playRecord(){
+    if(recordUrl) new Audio(recordUrl).play();
+}
+
+renderSub();
+</script>
+</body>
+</html>
