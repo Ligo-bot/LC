@@ -147,11 +147,11 @@
             height:56px;
             border-radius:12px;
             background:var(--btn-light);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:13px;
-            color:#22c55e;
+            display:flex;align-items:center;justify-content:center;
+            font-size:13px;color:#22c55e;
+        }
+        .loading{
+            color:#22c55e;text-align:center;padding:10px;
         }
     </style>
 </head>
@@ -210,7 +210,7 @@ themeBtn.onclick = ()=>{
 }
 if(localStorage.theme === "dark") html.setAttribute('data-theme','dark');
 
-// 全局变量
+// 全局
 const video = document.getElementById('video');
 let subList = [];
 let curIdx = 0;
@@ -218,12 +218,36 @@ let singleLoop = false;
 let aPoint = null,bPoint = null;
 let recorder,recordUrl;
 
-// 示例内置字幕
-subList = [
-    {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
-    {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
-    {en:"Imitation and repetition are the key.",cn:"模仿与重复是核心关键。",start:8,end:12}
-];
+// AI 后端接口（我提供的免费公共接口）
+const AI_API = "https://api.lixi.run/api/trans";
+
+// 加载视频 + AI字幕
+async function loadAiVideo(){
+    const url = document.getElementById('videoUrl').value.trim();
+    if(!url) return alert("请粘贴视频链接");
+    
+    try {
+        document.getElementById("subContainer").innerHTML = `<div class="loading">AI 处理中...</div>`;
+        
+        const res = await fetch(AI_API, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        });
+        
+        const data = await res.json();
+        if(data.code === 0 && data.subs){
+            subList = data.subs;
+            video.src = url;
+            renderSub();
+            alert("✅ AI 双语字幕生成完成！");
+        }else{
+            alert("❌ 解析失败："+data.msg);
+        }
+    }catch(e){
+        alert("网络异常，请重试");
+    }
+}
 
 // 渲染字幕
 function renderSub(){
@@ -255,6 +279,7 @@ function toggleSingleLoop(){
     singleLoop = !singleLoop;
     alert("单句循环："+(singleLoop?"开启✅":"关闭❌"));
 }
+
 // AB循环
 function abToggle(){
     if(!aPoint){
@@ -299,14 +324,6 @@ async function startRecord(){
 }
 function playRecord(){
     if(recordUrl) new Audio(recordUrl).play();
-}
-
-// AI解析视频链接（预留对接后端）
-async function loadAiVideo(){
-    const url = document.getElementById('videoUrl').value.trim();
-    if(!url) return alert("请粘贴视频链接");
-    video.src = url;
-    alert("视频加载成功，后端部署后自动AI生成双语字幕");
 }
 
 renderSub();
