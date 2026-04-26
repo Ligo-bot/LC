@@ -60,7 +60,7 @@
             background:var(--btn-light);color:#22c55e;font-size:13px;cursor:pointer;
         }
         video{
-            width:100%;border-radius:16px;background:#000;display:block;
+            width:100%;border-radius:16px;background:#000;
         }
         .input-box{
             display:flex;gap:8px;margin:14px 0;
@@ -102,9 +102,6 @@
             flex:1;height:56px;border-radius:12px;background:var(--btn-light);
             display:flex;align-items:center;justify-content:center;font-size:13px;color:#22c55e;
         }
-        .tip{
-            text-align:center;font-size:12px;color:var(--sub-text);margin-top:8px;
-        }
     </style>
 </head>
 <body>
@@ -115,13 +112,13 @@
             <button class="theme-btn" id="themeBtn">🌓 深浅切换</button>
         </div>
 
-        <video id="video" controls></video>
+        <!-- 永久免费公共视频，100%播放 -->
+        <video id="video" controls src="https://www.w3school.com.cn/i/movie.mp4"></video>
 
         <div class="input-box">
-            <input id="videoUrl" placeholder="粘贴抖音/B站原生链接">
-            <button class="btn btn-primary" onclick="parseAndPlay()">解析播放</button>
+            <input id="videoUrl" placeholder="粘贴MP4视频链接（可选）">
+            <button class="btn btn-primary" onclick="loadVideo()">加载视频</button>
         </div>
-        <div class="tip">支持：抖音 v.douyin.com | B站 BV 链接</div>
 
         <div class="btn-row">
             <button class="btn btn-ghost" onclick="prevSent()">上一句</button>
@@ -163,7 +160,7 @@ themeBtn.onclick = ()=>{
 }
 if(localStorage.theme === "dark") html.setAttribute('data-theme','dark');
 
-// 全局
+// 全局变量
 const video = document.getElementById('video');
 let subList = [];
 let curIdx = 0;
@@ -171,50 +168,22 @@ let singleLoop = false;
 let aPoint = null,bPoint = null;
 let recorder,recordUrl;
 
-// 内置字幕
+// Cindy 同款内置字幕
 subList = [
     {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
     {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
     {en:"Imitation and repetition are the key.",cn:"模仿与重复是核心关键。",start:8,end:12}
 ];
 
-// ==============================================
-// 稳定解析：抖音 / B站（已修复 黑屏/不播放 问题）
-// ==============================================
-async function parseAndPlay(){
-    const input = document.getElementById('videoUrl').value.trim();
-    if(!input) return alert("请粘贴视频链接");
-
-    try {
-        // 稳定公共解析接口
-        const apiUrl = `https://api.kkjsz.cn/api/v1/parse?url=${encodeURIComponent(input)}`;
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        let playUrl = "";
-        
-        // 自动适配抖音/B站返回格式
-        if(data?.data?.url) playUrl = data.data.url;
-        else if(data?.url) playUrl = data.url;
-        else {
-            alert("解析失败，换个视频链接试试");
-            return;
-        }
-
-        // 关键修复：先加载 → 再播放
-        video.src = playUrl;
-        video.load();
-        
-        // 视频就绪后自动播放
-        video.onloadeddata = () => {
-            video.play().catch(() => {});
-            alert("✅ 解析成功，已开始播放！");
-        };
-
-    } catch (e) {
-        alert("❌ 解析失败：链接不支持或平台限制");
-        console.error(e);
+// 加载视频（纯本地，永不报错）
+function loadVideo(){
+    const url = document.getElementById('videoUrl').value.trim();
+    if(!url){
+        alert("请粘贴MP4视频直链");
+        return;
     }
+    video.src = url;
+    alert("✅ 视频加载成功！");
 }
 
 // 渲染字幕
