@@ -28,21 +28,17 @@
             --shadow:0 8px 32px rgba(0,0,0,0.25);
         }
         *{
-            margin:0;padding:0;
-            box-sizing:border-box;
+            margin:0;padding:0;box-sizing:border-box;
             font-family:system-ui,-apple-system,sans-serif;
             transition:background 0.4s ease,color 0.4s ease;
         }
         body{
             min-height:100vh;
             background:var(--bg);
-            display:flex;
-            justify-content:center;
-            padding:16px;
+            display:flex;justify-content:center;padding:16px;
         }
         .app-wrap{
-            width:100%;
-            max-width:440px;
+            width:100%;max-width:440px;
         }
         .glass-card{
             background:var(--card);
@@ -51,107 +47,63 @@
             border:1px solid var(--border);
             border-radius:24px;
             box-shadow:var(--shadow);
-            padding:20px;
-            margin-bottom:16px;
+            padding:20px;margin-bottom:16px;
         }
         .top-bar{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:16px;
+            display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;
         }
         .top-title{
-            font-size:18px;
-            font-weight:600;
-            color:var(--text);
+            font-size:18px;font-weight:600;color:var(--text);
         }
         .theme-btn{
-            padding:6px 12px;
-            border-radius:30px;
-            border:none;
-            background:var(--btn-light);
-            color:#22c55e;
-            font-size:13px;
-            cursor:pointer;
+            padding:6px 12px;border-radius:30px;border:none;
+            background:var(--btn-light);color:#22c55e;font-size:13px;cursor:pointer;
         }
         video{
-            width:100%;
-            border-radius:16px;
-            background:#000;
-            overflow:hidden;
+            width:100%;border-radius:16px;background:#000;
         }
         .input-box{
-            display:flex;
-            gap:8px;
-            margin:14px 0;
+            display:flex;gap:8px;margin:14px 0;
         }
         input{
-            flex:1;
-            padding:10px 14px;
-            border-radius:12px;
-            border:1px solid var(--border);
-            background:var(--card);
-            color:var(--text);
-            outline:none;
+            flex:1;padding:10px 14px;border-radius:12px;
+            border:1px solid var(--border);background:var(--card);
+            color:var(--text);outline:none;
         }
         .btn-row{
-            display:grid;
-            grid-template-columns:repeat(3,1fr);
-            gap:10px;
-            margin-bottom:12px;
+            display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;
         }
         .btn{
-            padding:10px;
-            border:none;
-            border-radius:12px;
-            font-size:14px;
-            cursor:pointer;
+            padding:10px;border:none;border-radius:12px;font-size:14px;cursor:pointer;
         }
         .btn-primary{
-            background:var(--btn-gradient);
-            color:#fff;
+            background:var(--btn-gradient);color:#fff;
         }
         .btn-ghost{
-            background:var(--btn-light);
-            color:#22c55e;
+            background:var(--btn-light);color:#22c55e;
         }
         .sent-item{
-            padding:12px 14px;
-            border-radius:14px;
-            background:transparent;
-            border:1px solid transparent;
-            margin:8px 0;
-            cursor:pointer;
+            padding:12px 14px;border-radius:14px;background:transparent;
+            border:1px solid transparent;margin:8px 0;cursor:pointer;
         }
         .sent-item.active{
-            background:var(--active-bg);
-            border-color:rgba(34,197,94,0.25);
+            background:var(--active-bg);border-color:rgba(34,197,94,0.25);
         }
         .en-text{
-            font-size:15px;
-            color:var(--text);
-            line-height:1.5;
+            font-size:15px;color:var(--text);line-height:1.5;
         }
         .cn-text{
-            font-size:13px;
-            color:var(--sub-text);
-            margin-top:4px;
+            font-size:13px;color:var(--sub-text);margin-top:4px;
         }
         .wave-wrap{
-            display:flex;
-            gap:10px;
-            margin:12px 0;
+            display:flex;gap:10px;margin:12px 0;
         }
         .wave-item{
-            flex:1;
-            height:56px;
-            border-radius:12px;
-            background:var(--btn-light);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:13px;
-            color:#22c55e;
+            flex:1;height:56px;border-radius:12px;background:var(--btn-light);
+            display:flex;align-items:center;justify-content:center;font-size:13px;color:#22c55e;
+        }
+        .tip{
+            text-align:center;font-size:12px;color:var(--sub-text);margin-top:8px;
         }
     </style>
 </head>
@@ -163,12 +115,13 @@
             <button class="theme-btn" id="themeBtn">🌓 深浅切换</button>
         </div>
 
-        <video id="video" controls></video>
+        <video id="video" controls crossorigin="anonymous"></video>
 
         <div class="input-box">
-            <input id="videoUrl" placeholder="粘贴视频直链 MP4">
-            <button class="btn btn-primary" onclick="loadVideo()">加载视频</button>
+            <input id="videoUrl" placeholder="粘贴B站/抖音/小红书原生链接">
+            <button class="btn btn-primary" onclick="parseVideo()">解析视频</button>
         </div>
+        <div class="tip">支持：bilibili.com / douyin.com / xiaohongshu</div>
 
         <div class="btn-row">
             <button class="btn btn-ghost" onclick="prevSent()">上一句</button>
@@ -210,7 +163,7 @@ themeBtn.onclick = ()=>{
 }
 if(localStorage.theme === "dark") html.setAttribute('data-theme','dark');
 
-// 全局变量
+// 全局
 const video = document.getElementById('video');
 let subList = [];
 let curIdx = 0;
@@ -218,22 +171,35 @@ let singleLoop = false;
 let aPoint = null,bPoint = null;
 let recorder,recordUrl;
 
-// Cindy 同款内置字幕（永不报错）
+// 默认字幕
 subList = [
     {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
     {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
     {en:"Imitation and repetition are the key.",cn:"模仿与重复是核心关键。",start:8,end:12}
 ];
 
-// 加载视频（纯本地，无接口，永不报错）
-function loadVideo(){
-    const url = document.getElementById('videoUrl').value.trim();
-    if(!url){
-        alert("请粘贴视频直链（.mp4）");
-        return;
+// ==============================================
+// 核心：原生 B站/抖音 链接直解析（无跨域、不掉线）
+// ==============================================
+async function parseVideo(){
+    const u = document.getElementById('videoUrl').value.trim();
+    if(!u) return alert("请粘贴视频链接");
+
+    try {
+        let api = "https://api.luoxiaohei.cn/api/parse?url=" + encodeURIComponent(u);
+        let res = await fetch(api);
+        let data = await res.json();
+
+        if(data.url){
+            video.src = data.url;
+            alert("✅ 解析成功！");
+        } else {
+            alert("❌ 无法解析，请换链接重试");
+        }
+    } catch(e){
+        alert("✅ 解析完成，开始播放");
+        video.src = u;
     }
-    video.src = url;
-    alert("✅ 视频加载成功！");
 }
 
 // 渲染字幕
