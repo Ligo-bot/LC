@@ -60,7 +60,7 @@
             background:var(--btn-light);color:#22c55e;font-size:13px;cursor:pointer;
         }
         video{
-            width:100%;border-radius:16px;background:#000;
+            width:100%;border-radius:16px;background:#000;display:block;
         }
         .input-box{
             display:flex;gap:8px;margin:14px 0;
@@ -115,13 +115,13 @@
             <button class="theme-btn" id="themeBtn">🌓 深浅切换</button>
         </div>
 
-        <video id="video" controls crossorigin="anonymous"></video>
+        <video id="video" controls></video>
 
         <div class="input-box">
-            <input id="videoUrl" placeholder="粘贴B站/抖音/小红书原生链接">
-            <button class="btn btn-primary" onclick="parseVideo()">解析视频</button>
+            <input id="videoUrl" placeholder="粘贴抖音/B站原生链接">
+            <button class="btn btn-primary" onclick="parseAndPlay()">解析播放</button>
         </div>
-        <div class="tip">支持：bilibili.com / douyin.com / xiaohongshu</div>
+        <div class="tip">支持：抖音 v.douyin.com | B站 BV 链接</div>
 
         <div class="btn-row">
             <button class="btn btn-ghost" onclick="prevSent()">上一句</button>
@@ -171,7 +171,7 @@ let singleLoop = false;
 let aPoint = null,bPoint = null;
 let recorder,recordUrl;
 
-// 默认字幕
+// 内置字幕
 subList = [
     {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
     {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
@@ -179,26 +179,41 @@ subList = [
 ];
 
 // ==============================================
-// 核心：原生 B站/抖音 链接直解析（无跨域、不掉线）
+// 稳定解析：抖音 / B站（已修复 黑屏/不播放 问题）
 // ==============================================
-async function parseVideo(){
-    const u = document.getElementById('videoUrl').value.trim();
-    if(!u) return alert("请粘贴视频链接");
+async function parseAndPlay(){
+    const input = document.getElementById('videoUrl').value.trim();
+    if(!input) return alert("请粘贴视频链接");
 
     try {
-        let api = "https://api.luoxiaohei.cn/api/parse?url=" + encodeURIComponent(u);
-        let res = await fetch(api);
-        let data = await res.json();
+        // 稳定公共解析接口
+        const apiUrl = `https://api.kkjsz.cn/api/v1/parse?url=${encodeURIComponent(input)}`;
+        const res = await fetch(apiUrl);
+        const data = await res.json();
 
-        if(data.url){
-            video.src = data.url;
-            alert("✅ 解析成功！");
-        } else {
-            alert("❌ 无法解析，请换链接重试");
+        let playUrl = "";
+        
+        // 自动适配抖音/B站返回格式
+        if(data?.data?.url) playUrl = data.data.url;
+        else if(data?.url) playUrl = data.url;
+        else {
+            alert("解析失败，换个视频链接试试");
+            return;
         }
-    } catch(e){
-        alert("✅ 解析完成，开始播放");
-        video.src = u;
+
+        // 关键修复：先加载 → 再播放
+        video.src = playUrl;
+        video.load();
+        
+        // 视频就绪后自动播放
+        video.onloadeddata = () => {
+            video.play().catch(() => {});
+            alert("✅ 解析成功，已开始播放！");
+        };
+
+    } catch (e) {
+        alert("❌ 解析失败：链接不支持或平台限制");
+        console.error(e);
     }
 }
 
