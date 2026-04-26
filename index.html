@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f6fb" />
+    <title>TE Vlog Player</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="header-side">
+          <button class="header-icon" type="button" aria-label="目录">≡</button>
+          <button class="header-nav" type="button">目录</button>
+          <button class="header-nav" type="button">下一期</button>
+        </div>
+        <div class="header-center">
+          <span class="period-label">第 <strong id="periodNumber">2</strong> 期</span>
+          <p class="series-name">Only For English Learning at TEco Lab</p>
+        </div>
+        <div class="header-side end">
+          <button class="header-icon" id="sentenceModeBtn" type="button" aria-pressed="true">单</button>
+          <button class="header-icon" id="repeatBtn" type="button" aria-pressed="true">循</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <section class="video-panel panel">
+          <div class="video-stage">
+            <video
+              id="lessonVideo"
+              playsinline
+              preload="metadata"
+              poster="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80"
+            ></video>
+            <div class="video-watermark">Only For English Learning at TEco Lab</div>
+            <div class="video-corner-tag">Ep.<span id="episodeLabel">2</span></div>
+          </div>
+
+          <div class="control-row">
+            <button class="tool-circle active" id="loopVideoBtn" type="button">
+              <span class="tool-icon">⟳</span>
+              <span class="tool-text">视频循环</span>
+            </button>
+            <button class="tool-circle" id="accentBtn" type="button">
+              <span class="tool-icon">ə</span>
+              <span class="tool-text">音标</span>
+            </button>
+            <button class="tool-circle" id="markABBtn" type="button">
+              <span class="tool-icon">A</span>
+              <span class="tool-text">A-B点</span>
+            </button>
+            <button class="tool-circle" id="prevBtn" type="button">
+              <span class="tool-icon">←</span>
+              <span class="tool-text">上一句</span>
+            </button>
+            <button class="tool-circle active" id="replayBtn" type="button">
+              <span class="tool-icon">⟲</span>
+              <span class="tool-text">重播</span>
+            </button>
+            <button class="tool-circle active play" id="playPauseBtn" type="button">
+              <span class="tool-icon">❚❚</span>
+              <span class="tool-text">暂停</span>
+            </button>
+            <button class="tool-circle" id="nextBtn" type="button">
+              <span class="tool-icon">→</span>
+              <span class="tool-text">下一句</span>
+            </button>
+            <button class="tool-circle" id="speedBtn" type="button">
+              <span class="tool-icon">1x</span>
+              <span class="tool-text">倍速</span>
+            </button>
+            <button class="tool-circle" id="singleBtn" type="button">
+              <span class="tool-icon">1</span>
+              <span class="tool-text">单句</span>
+            </button>
+            <button class="tool-circle" id="continueBtn" type="button">
+              <span class="tool-icon">▷</span>
+              <span class="tool-text">继续</span>
+            </button>
+          </div>
+
+          <div class="mode-strip">
+            <div class="mode-status">
+              <span class="mode-label">A-B 循环</span>
+              <strong id="abStatusLabel">未设置</strong>
+            </div>
+            <div class="mode-actions">
+              <button class="strip-button" id="setPointABtn" type="button">设 A 点</button>
+              <button class="strip-button" id="setPointBBtn" type="button">设 B 点</button>
+              <button class="strip-button danger" id="clearABBtn" type="button">清除</button>
+            </div>
+          </div>
+
+          <div class="sentence-panel">
+            <div class="sentence-head">
+              <div>
+                <p class="eyebrow">当前句子</p>
+                <p class="sentence-status" id="segmentTimeLabel">句子 1 / 6</p>
+              </div>
+              <div class="time-chip">
+                <span id="currentTimeLabel">00:00</span>
+                <span>/</span>
+                <span id="durationLabel">00:00</span>
+              </div>
+            </div>
+            <input id="timelineRange" class="timeline-range" type="range" min="0" max="100" value="0" />
+            <h2 class="sentence-english" id="focusEnglish">I'm probably gonna be so strong after this week.</h2>
+            <p class="sentence-chinese" id="focusChinese">我感觉这周结束后我会变得超级壮。</p>
+          </div>
+        </section>
+
+        <aside class="subtitle-panel panel">
+          <div class="subtitle-head">
+            <div>
+              <p class="eyebrow">动态字幕</p>
+              <h3 id="lessonTitle">Post-workout catch-up vlog</h3>
+            </div>
+            <div class="subtitle-toolbar">
+              <span class="stat-badge">进度 <strong id="progressLabel">0%</strong></span>
+              <span class="stat-badge">收藏 <strong id="favoritesCount">0</strong></span>
+              <button class="mini-toggle active" type="button">双语</button>
+              <button class="mini-toggle" type="button">英</button>
+            </div>
+          </div>
+
+          <div class="import-bar">
+            <input id="videoUrlInput" type="url" placeholder="粘贴你自己的 MP4 链接" />
+            <button class="apply-button" id="applyVideoBtn" type="button">替换视频</button>
+          </div>
+
+          <div class="subtitle-import">
+            <button class="apply-button secondary" id="openLocalVideoBtn" type="button">本地视频</button>
+            <span class="import-hint" id="sourceStatusLabel">当前使用示例视频 + 示例字幕</span>
+            <input id="localVideoInput" type="file" accept="video/*" hidden />
+          </div>
+
+          <div class="transcript-list" id="transcriptList"></div>
+        </aside>
+      </section>
+
+      <section class="flow-panel panel">
+        <div class="flow-head">
+          <div>
+            <p class="eyebrow">练习流程</p>
+            <h3>One Video, One Study Loop</h3>
+          </div>
+          <div class="flow-summary">
+            <span class="flow-badge">已练 <strong id="practicedCountLabel">0</strong></span>
+            <span class="flow-badge">待练 <strong id="remainingCountLabel">0</strong></span>
+            <span class="flow-badge">完成度 <strong id="completionRateLabel">0%</strong></span>
+          </div>
+        </div>
+
+        <div class="flow-steps">
+          <div class="flow-step" id="stepLoad">
+            <span class="step-number">1</span>
+            <div>
+              <strong>载入视频</strong>
+              <p>粘贴链接或选择本地视频，系统自动进入可练习状态。</p>
+            </div>
+          </div>
+          <div class="flow-step" id="stepPractice">
+            <span class="step-number">2</span>
+            <div>
+              <strong>精听当前段</strong>
+              <p id="practiceHint">先播放当前段，再用单句循环或 A-B 点反复练。</p>
+            </div>
+          </div>
+          <div class="flow-step" id="stepReview">
+            <span class="step-number">3</span>
+            <div>
+              <strong>标记并复习</strong>
+              <p id="reviewHint">练完就标记本段，收藏难句，最后回看收藏。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-actions">
+          <button class="text-button" id="startCurrentBtn" type="button">开始练当前段</button>
+          <button class="apply-button secondary" id="markPracticedBtn" type="button">标记本段已练</button>
+          <button class="apply-button secondary" id="jumpFavoriteBtn" type="button">跳到下一收藏</button>
+        </div>
+      </section>
+
+      <section class="vocab-panel panel">
+        <div class="vocab-head">
+          <div>
+            <p class="eyebrow">重点表达</p>
+            <h3>Vocabulary Focus</h3>
+          </div>
+          <button class="text-button" id="favoriteBtn" type="button" aria-pressed="false">收藏本句</button>
+        </div>
+        <div class="vocab-grid" id="vocabGrid"></div>
+      </section>
+
+      <section class="summary-panel panel" id="summaryPanel">
+        <div class="summary-head">
+          <div>
+            <p class="eyebrow">本次练习</p>
+            <h3 id="summaryTitle">Practice Snapshot</h3>
+          </div>
+          <button class="apply-button secondary" id="restartPracticeBtn" type="button">重新开始本轮</button>
+        </div>
+
+        <div class="summary-cards">
+          <article class="summary-card">
+            <span class="summary-label">完成片段</span>
+            <strong id="summaryPracticed">0 / 0</strong>
+            <p id="summaryPracticedText">还没有开始练习。</p>
+          </article>
+          <article class="summary-card">
+            <span class="summary-label">收藏难句</span>
+            <strong id="summaryFavorites">0</strong>
+            <p id="summaryFavoritesText">还没有收藏句子。</p>
+          </article>
+          <article class="summary-card">
+            <span class="summary-label">下一步建议</span>
+            <strong id="summaryAction">开始第一轮</strong>
+            <p id="summaryActionText">先载入你的视频，然后从第 1 段开始练。</p>
+          </article>
+        </div>
+
+        <div class="review-list-wrap">
+          <div class="review-head">
+            <h4>收藏复习清单</h4>
+            <span id="reviewListHint">收藏后会出现在这里</span>
+          </div>
+          <div class="review-list" id="reviewList"></div>
+        </div>
+      </section>
+    </main>
+
+    <template id="transcriptItemTemplate">
+      <button class="transcript-item" type="button">
+        <div class="transcript-topline">
+          <span class="line-index"></span>
+          <div class="item-actions">
+            <span class="line-time"></span>
+            <span class="mini-action">♡</span>
+            <span class="mini-action">✎</span>
+            <span class="mini-action">🎙</span>
+          </div>
+        </div>
+        <p class="transcript-en"></p>
+        <p class="transcript-zh"></p>
+      </button>
+    </template>
+
+    <template id="vocabCardTemplate">
+      <button class="vocab-card" type="button">
+        <p class="vocab-word"></p>
+        <p class="vocab-meaning"></p>
+        <span class="vocab-context"></span>
+      </button>
+    </template>
+
+    <template id="reviewItemTemplate">
+      <button class="review-item" type="button">
+        <span class="review-index"></span>
+        <div class="review-copy">
+          <p class="review-en"></p>
+          <p class="review-zh"></p>
+        </div>
+      </button>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
