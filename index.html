@@ -1,277 +1,315 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#f5f6fb" />
-    <title>TE Vlog Player</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="app-header">
-        <div class="header-side">
-          <button class="header-icon" type="button" aria-label="目录">≡</button>
-          <button class="header-nav" type="button">目录</button>
-          <button class="header-nav" type="button">下一期</button>
-        </div>
-        <div class="header-center">
-          <span class="period-label">第 <strong id="periodNumber">2</strong> 期</span>
-          <p class="series-name">Only For English Learning at TEco Lab</p>
-        </div>
-        <div class="header-side end">
-          <button class="header-icon" id="sentenceModeBtn" type="button" aria-pressed="true">单</button>
-          <button class="header-icon" id="repeatBtn" type="button" aria-pressed="true">循</button>
-        </div>
-      </header>
-
-      <section class="workspace">
-        <section class="video-panel panel">
-          <div class="video-stage">
-            <video
-              id="lessonVideo"
-              playsinline
-              preload="metadata"
-              poster="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80"
-            ></video>
-            <div class="video-watermark">Only For English Learning at TEco Lab</div>
-            <div class="video-corner-tag">Ep.<span id="episodeLabel">2</span></div>
-          </div>
-
-          <div class="control-row">
-            <button class="tool-circle active" id="loopVideoBtn" type="button">
-              <span class="tool-icon">⟳</span>
-              <span class="tool-text">视频循环</span>
-            </button>
-            <button class="tool-circle" id="accentBtn" type="button">
-              <span class="tool-icon">ə</span>
-              <span class="tool-text">音标</span>
-            </button>
-            <button class="tool-circle" id="markABBtn" type="button">
-              <span class="tool-icon">A</span>
-              <span class="tool-text">A-B点</span>
-            </button>
-            <button class="tool-circle" id="prevBtn" type="button">
-              <span class="tool-icon">←</span>
-              <span class="tool-text">上一句</span>
-            </button>
-            <button class="tool-circle active" id="replayBtn" type="button">
-              <span class="tool-icon">⟲</span>
-              <span class="tool-text">重播</span>
-            </button>
-            <button class="tool-circle active play" id="playPauseBtn" type="button">
-              <span class="tool-icon">❚❚</span>
-              <span class="tool-text">暂停</span>
-            </button>
-            <button class="tool-circle" id="nextBtn" type="button">
-              <span class="tool-icon">→</span>
-              <span class="tool-text">下一句</span>
-            </button>
-            <button class="tool-circle" id="speedBtn" type="button">
-              <span class="tool-icon">1x</span>
-              <span class="tool-text">倍速</span>
-            </button>
-            <button class="tool-circle" id="singleBtn" type="button">
-              <span class="tool-icon">1</span>
-              <span class="tool-text">单句</span>
-            </button>
-            <button class="tool-circle" id="continueBtn" type="button">
-              <span class="tool-icon">▷</span>
-              <span class="tool-text">继续</span>
-            </button>
-          </div>
-
-          <div class="mode-strip">
-            <div class="mode-status">
-              <span class="mode-label">A-B 循环</span>
-              <strong id="abStatusLabel">未设置</strong>
-            </div>
-            <div class="mode-actions">
-              <button class="strip-button" id="setPointABtn" type="button">设 A 点</button>
-              <button class="strip-button" id="setPointBBtn" type="button">设 B 点</button>
-              <button class="strip-button danger" id="clearABBtn" type="button">清除</button>
-            </div>
-          </div>
-
-          <div class="sentence-panel">
-            <div class="sentence-head">
-              <div>
-                <p class="eyebrow">当前句子</p>
-                <p class="sentence-status" id="segmentTimeLabel">句子 1 / 6</p>
-              </div>
-              <div class="time-chip">
-                <span id="currentTimeLabel">00:00</span>
-                <span>/</span>
-                <span id="durationLabel">00:00</span>
-              </div>
-            </div>
-            <input id="timelineRange" class="timeline-range" type="range" min="0" max="100" value="0" />
-            <h2 class="sentence-english" id="focusEnglish">I'm probably gonna be so strong after this week.</h2>
-            <p class="sentence-chinese" id="focusChinese">我感觉这周结束后我会变得超级壮。</p>
-          </div>
-        </section>
-
-        <aside class="subtitle-panel panel">
-          <div class="subtitle-head">
-            <div>
-              <p class="eyebrow">动态字幕</p>
-              <h3 id="lessonTitle">Post-workout catch-up vlog</h3>
-            </div>
-            <div class="subtitle-toolbar">
-              <span class="stat-badge">进度 <strong id="progressLabel">0%</strong></span>
-              <span class="stat-badge">收藏 <strong id="favoritesCount">0</strong></span>
-              <button class="mini-toggle active" type="button">双语</button>
-              <button class="mini-toggle" type="button">英</button>
-            </div>
-          </div>
-
-          <div class="import-bar">
-            <input id="videoUrlInput" type="url" placeholder="粘贴你自己的 MP4 链接" />
-            <button class="apply-button" id="applyVideoBtn" type="button">替换视频</button>
-          </div>
-
-          <div class="subtitle-import">
-            <button class="apply-button secondary" id="openLocalVideoBtn" type="button">本地视频</button>
-            <span class="import-hint" id="sourceStatusLabel">当前使用示例视频 + 示例字幕</span>
-            <input id="localVideoInput" type="file" accept="video/*" hidden />
-          </div>
-
-          <div class="transcript-list" id="transcriptList"></div>
-        </aside>
-      </section>
-
-      <section class="flow-panel panel">
-        <div class="flow-head">
-          <div>
-            <p class="eyebrow">练习流程</p>
-            <h3>One Video, One Study Loop</h3>
-          </div>
-          <div class="flow-summary">
-            <span class="flow-badge">已练 <strong id="practicedCountLabel">0</strong></span>
-            <span class="flow-badge">待练 <strong id="remainingCountLabel">0</strong></span>
-            <span class="flow-badge">完成度 <strong id="completionRateLabel">0%</strong></span>
-          </div>
-        </div>
-
-        <div class="flow-steps">
-          <div class="flow-step" id="stepLoad">
-            <span class="step-number">1</span>
-            <div>
-              <strong>载入视频</strong>
-              <p>粘贴链接或选择本地视频，系统自动进入可练习状态。</p>
-            </div>
-          </div>
-          <div class="flow-step" id="stepPractice">
-            <span class="step-number">2</span>
-            <div>
-              <strong>精听当前段</strong>
-              <p id="practiceHint">先播放当前段，再用单句循环或 A-B 点反复练。</p>
-            </div>
-          </div>
-          <div class="flow-step" id="stepReview">
-            <span class="step-number">3</span>
-            <div>
-              <strong>标记并复习</strong>
-              <p id="reviewHint">练完就标记本段，收藏难句，最后回看收藏。</p>
-            </div>
-          </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LC · 口语精听 | Web3 玻璃质感</title>
+    <style>
+        :root{
+            --bg:#f0f4f1;
+            --card:rgba(255,255,255,0.65);
+            --text:#1f2924;
+            --sub-text:#555;
+            --border:rgba(255,255,255,0.3);
+            --btn-gradient:linear-gradient(135deg,#22c55e,#16a34a);
+            --btn-light:rgba(34,197,94,0.12);
+            --active-bg:rgba(34,197,94,0.18);
+            --shadow:0 8px 32px rgba(22,163,74,0.1);
+        }
+        [data-theme="dark"]{
+            --bg:#0c1410;
+            --card:rgba(30,41,35,0.55);
+            --text:#e8f1ec;
+            --sub-text:#a3b8af;
+            --border:rgba(255,255,255,0.08);
+            --btn-gradient:linear-gradient(135deg,#22c55e,#15803d);
+            --btn-light:rgba(34,197,94,0.15);
+            --active-bg:rgba(34,197,94,0.22);
+            --shadow:0 8px 32px rgba(0,0,0,0.25);
+        }
+        *{
+            margin:0;padding:0;
+            box-sizing:border-box;
+            font-family:system-ui,-apple-system,sans-serif;
+            transition:background 0.4s ease,color 0.4s ease;
+        }
+        body{
+            min-height:100vh;
+            background:var(--bg);
+            display:flex;
+            justify-content:center;
+            padding:16px;
+        }
+        .app-wrap{
+            width:100%;
+            max-width:440px;
+        }
+        .glass-card{
+            background:var(--card);
+            backdrop-filter:blur(16px);
+            -webkit-backdrop-filter:blur(16px);
+            border:1px solid var(--border);
+            border-radius:24px;
+            box-shadow:var(--shadow);
+            padding:20px;
+            margin-bottom:16px;
+        }
+        .top-bar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:16px;
+        }
+        .top-title{
+            font-size:18px;
+            font-weight:600;
+            color:var(--text);
+        }
+        .theme-btn{
+            padding:6px 12px;
+            border-radius:30px;
+            border:none;
+            background:var(--btn-light);
+            color:#22c55e;
+            font-size:13px;
+            cursor:pointer;
+        }
+        video{
+            width:100%;
+            border-radius:16px;
+            background:#000;
+            overflow:hidden;
+        }
+        .input-box{
+            display:flex;
+            gap:8px;
+            margin:14px 0;
+        }
+        input{
+            flex:1;
+            padding:10px 14px;
+            border-radius:12px;
+            border:1px solid var(--border);
+            background:var(--card);
+            color:var(--text);
+            outline:none;
+        }
+        .btn-row{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:10px;
+            margin-bottom:12px;
+        }
+        .btn{
+            padding:10px;
+            border:none;
+            border-radius:12px;
+            font-size:14px;
+            cursor:pointer;
+        }
+        .btn-primary{
+            background:var(--btn-gradient);
+            color:#fff;
+        }
+        .btn-ghost{
+            background:var(--btn-light);
+            color:#22c55e;
+        }
+        .sent-item{
+            padding:12px 14px;
+            border-radius:14px;
+            background:transparent;
+            border:1px solid transparent;
+            margin:8px 0;
+            cursor:pointer;
+        }
+        .sent-item.active{
+            background:var(--active-bg);
+            border-color:rgba(34,197,94,0.25);
+        }
+        .en-text{
+            font-size:15px;
+            color:var(--text);
+            line-height:1.5;
+        }
+        .cn-text{
+            font-size:13px;
+            color:var(--sub-text);
+            margin-top:4px;
+        }
+        .wave-wrap{
+            display:flex;
+            gap:10px;
+            margin:12px 0;
+        }
+        .wave-item{
+            flex:1;
+            height:56px;
+            border-radius:12px;
+            background:var(--btn-light);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:13px;
+            color:#22c55e;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrap">
+    <div class="glass-card">
+        <div class="top-bar">
+            <div class="top-title">🎧 口语精听跟读</div>
+            <button class="theme-btn" id="themeBtn">🌓 深浅切换</button>
         </div>
 
-        <div class="flow-actions">
-          <button class="text-button" id="startCurrentBtn" type="button">开始练当前段</button>
-          <button class="apply-button secondary" id="markPracticedBtn" type="button">标记本段已练</button>
-          <button class="apply-button secondary" id="jumpFavoriteBtn" type="button">跳到下一收藏</button>
-        </div>
-      </section>
+        <video id="video" controls></video>
 
-      <section class="vocab-panel panel">
-        <div class="vocab-head">
-          <div>
-            <p class="eyebrow">重点表达</p>
-            <h3>Vocabulary Focus</h3>
-          </div>
-          <button class="text-button" id="favoriteBtn" type="button" aria-pressed="false">收藏本句</button>
-        </div>
-        <div class="vocab-grid" id="vocabGrid"></div>
-      </section>
-
-      <section class="summary-panel panel" id="summaryPanel">
-        <div class="summary-head">
-          <div>
-            <p class="eyebrow">本次练习</p>
-            <h3 id="summaryTitle">Practice Snapshot</h3>
-          </div>
-          <button class="apply-button secondary" id="restartPracticeBtn" type="button">重新开始本轮</button>
+        <div class="input-box">
+            <input id="videoUrl" placeholder="粘贴抖音/B站/视频链接">
+            <button class="btn btn-primary" onclick="loadAiVideo()">AI解析</button>
         </div>
 
-        <div class="summary-cards">
-          <article class="summary-card">
-            <span class="summary-label">完成片段</span>
-            <strong id="summaryPracticed">0 / 0</strong>
-            <p id="summaryPracticedText">还没有开始练习。</p>
-          </article>
-          <article class="summary-card">
-            <span class="summary-label">收藏难句</span>
-            <strong id="summaryFavorites">0</strong>
-            <p id="summaryFavoritesText">还没有收藏句子。</p>
-          </article>
-          <article class="summary-card">
-            <span class="summary-label">下一步建议</span>
-            <strong id="summaryAction">开始第一轮</strong>
-            <p id="summaryActionText">先载入你的视频，然后从第 1 段开始练。</p>
-          </article>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="prevSent()">上一句</button>
+            <button class="btn btn-ghost" onclick="nextSent()">下一句</button>
+            <button class="btn btn-primary" onclick="toggleSingleLoop()">单句循环</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-ghost" onclick="setSpeed(0.75)">0.75x</button>
+            <button class="btn btn-ghost" onclick="setSpeed(1)">1.0x</button>
+            <button class="btn btn-ghost" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" onclick="startRecord()">录音跟读</button>
+            <button class="btn btn-ghost" onclick="playRecord()">回放</button>
+            <button class="btn btn-ghost" onclick="abToggle()">AB循环</button>
         </div>
 
-        <div class="review-list-wrap">
-          <div class="review-head">
-            <h4>收藏复习清单</h4>
-            <span id="reviewListHint">收藏后会出现在这里</span>
-          </div>
-          <div class="review-list" id="reviewList"></div>
+        <div class="wave-wrap">
+            <div class="wave-item">原声波形</div>
+            <div class="wave-item">我的发音</div>
         </div>
-      </section>
-    </main>
 
-    <template id="transcriptItemTemplate">
-      <button class="transcript-item" type="button">
-        <div class="transcript-topline">
-          <span class="line-index"></span>
-          <div class="item-actions">
-            <span class="line-time"></span>
-            <span class="mini-action">♡</span>
-            <span class="mini-action">✎</span>
-            <span class="mini-action">🎙</span>
-          </div>
-        </div>
-        <p class="transcript-en"></p>
-        <p class="transcript-zh"></p>
-      </button>
-    </template>
+        <div id="subContainer"></div>
+    </div>
+</div>
 
-    <template id="vocabCardTemplate">
-      <button class="vocab-card" type="button">
-        <p class="vocab-word"></p>
-        <p class="vocab-meaning"></p>
-        <span class="vocab-context"></span>
-      </button>
-    </template>
+<script>
+// 主题切换
+const themeBtn = document.getElementById('themeBtn');
+const html = document.documentElement;
+themeBtn.onclick = ()=>{
+    if(html.getAttribute('data-theme') === 'dark'){
+        html.removeAttribute('data-theme');
+        localStorage.theme = "light";
+    }else{
+        html.setAttribute('data-theme','dark');
+        localStorage.theme = "dark";
+    }
+}
+if(localStorage.theme === "dark") html.setAttribute('data-theme','dark');
 
-    <template id="reviewItemTemplate">
-      <button class="review-item" type="button">
-        <span class="review-index"></span>
-        <div class="review-copy">
-          <p class="review-en"></p>
-          <p class="review-zh"></p>
-        </div>
-      </button>
-    </template>
+// 全局变量
+const video = document.getElementById('video');
+let subList = [];
+let curIdx = 0;
+let singleLoop = false;
+let aPoint = null,bPoint = null;
+let recorder,recordUrl;
 
-    <script src="script.js"></script>
-  </body>
+// 示例内置字幕
+subList = [
+    {en:"I found the fastest way to improve oral English.",cn:"我发现口语进步最快的方式。",start:0,end:4},
+    {en:"Practice 20 minutes every single day.",cn:"每天坚持练习20分钟。",start:4,end:8},
+    {en:"Imitation and repetition are the key.",cn:"模仿与重复是核心关键。",start:8,end:12}
+];
+
+// 渲染字幕
+function renderSub(){
+    const wrap = document.getElementById('subContainer');
+    wrap.innerHTML = "";
+    subList.forEach((item,i)=>{
+        const div = document.createElement('div');
+        div.className = "sent-item " + (i===curIdx?"active":"");
+        div.onclick = ()=>jumpSent(i);
+        div.innerHTML = `
+            <div class="en-text">${item.en}</div>
+            <div class="cn-text">${item.cn}</div>
+        `;
+        wrap.appendChild(div);
+    })
+}
+
+// 句子控制
+function jumpSent(i){
+    curIdx = i;
+    video.currentTime = subList[curIdx].start;
+    renderSub();
+}
+function prevSent(){if(curIdx>0) jumpSent(curIdx-1);}
+function nextSent(){if(curIdx < subList.length-1) jumpSent(curIdx+1);}
+
+// 单句循环
+function toggleSingleLoop(){
+    singleLoop = !singleLoop;
+    alert("单句循环："+(singleLoop?"开启✅":"关闭❌"));
+}
+// AB循环
+function abToggle(){
+    if(!aPoint){
+        aPoint = video.currentTime;
+        alert("A点已设置");
+    }else if(!bPoint){
+        bPoint = video.currentTime;
+        alert("B点已设置，AB循环开启");
+    }else{
+        aPoint = null;bPoint = null;
+        alert("AB循环已清除");
+    }
+}
+
+// 倍速
+function setSpeed(val){
+    video.playbackRate = val;
+}
+
+// 时间轴监听
+video.ontimeupdate = function(){
+    if(singleLoop){
+        let s = subList[curIdx];
+        if(video.currentTime > s.end) video.currentTime = s.start;
+    }
+    if(aPoint!==null && bPoint!==null){
+        if(video.currentTime > bPoint) video.currentTime = aPoint;
+    }
+}
+
+// 录音
+async function startRecord(){
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    recorder = new MediaRecorder(stream);
+    let chunks = [];
+    recorder.ondataavailable = e=>chunks.push(e.data);
+    recorder.onstop = ()=>{
+        recordUrl = URL.createObjectURL(new Blob(chunks));
+    }
+    recorder.start();
+    alert("开始跟读录音");
+}
+function playRecord(){
+    if(recordUrl) new Audio(recordUrl).play();
+}
+
+// AI解析视频链接（预留对接后端）
+async function loadAiVideo(){
+    const url = document.getElementById('videoUrl').value.trim();
+    if(!url) return alert("请粘贴视频链接");
+    video.src = url;
+    alert("视频加载成功，后端部署后自动AI生成双语字幕");
+}
+
+renderSub();
+</script>
+</body>
 </html>
